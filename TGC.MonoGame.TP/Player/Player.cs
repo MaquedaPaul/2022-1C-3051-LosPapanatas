@@ -95,6 +95,9 @@ namespace TGC.MonoGame.TP
 
         public RenderTarget2D noEnviromentRender;
 
+        public int endAnimationTime = 4;
+        public double currentEndAnimationTime = 5;
+
         public Player(GraphicsDevice graphics, ContentManager content, Effect Effect, Color color)
         {
 
@@ -164,6 +167,7 @@ namespace TGC.MonoGame.TP
             var playerWorld = this.Body.World;
             PlayerEffect.CurrentTechnique = PlayerEffect.Techniques[Tech];
             //Effect.CurrentTechnique = Effect.Techniques["EnvironmentMapSphere"];
+            PlayerEffect.Parameters["ModelTexture"]?.SetValue(PlayerTexture);
             PlayerEffect.Parameters["environmentMap"]?.SetValue(EnvironmentMapRenderTarget);
             PlayerEffect.Parameters["lightPosition"].SetValue(LightPosition);
             Matrix InverseTransposeWorld = Matrix.Transpose(Matrix.Invert(playerWorld));
@@ -420,6 +424,10 @@ namespace TGC.MonoGame.TP
             Initialized = false;
             //totalCoins = 0;
             // Nivel.RestartLogicalObjects();
+        }
+
+        public void Win() {
+            currentEndAnimationTime = 0.1;
         }
     }
 

@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Media;
 using TGC.MonoGame.Niveles.SkyBox;
 using System.Collections.Generic;
 using TGC.MonoGame.TP.Elements;
+using TGC.MonoGame.TP.Geometries;
 
 namespace TGC.MonoGame.TP
 {
@@ -55,6 +56,13 @@ namespace TGC.MonoGame.TP
         private Matrix Projection { get; set; }
         private Player Player { get; set; }
 
+        private FullScreenQuad FullScreenQuad;
+
+        private RenderTarget2D MainRenderTarget;
+
+        private Effect BlurEffect { get; set; }
+
+
         private Player[] PlayerTypes { get; set; }
         //private FollowCamera Camera { get; set; }
         private Camera Camera { get; set; }
@@ -77,6 +85,7 @@ namespace TGC.MonoGame.TP
         public Menu selectedMenu;
 
         public HUD HUD { get; set; }
+
         private bool flag_play { get; set; }
 
         private Point screenSize { get; set; } 
@@ -137,6 +146,7 @@ namespace TGC.MonoGame.TP
             CubeMapCamera = new StaticCamera(1f, Player.Position, Vector3.UnitX, Vector3.Up);
             CubeMapCamera.BuildProjection(1f, 1f, 3000f, MathHelper.PiOver2);
 
+           
 
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
@@ -172,6 +182,12 @@ namespace TGC.MonoGame.TP
             HUD = new HUD(SpriteFont, SpriteBatch, Content, Player, GraphicsDevice);
             selectedMenu = new MainMenu(GraphicsDevice, SpriteFont, SpriteBatch, PlayerTypes, Content);
 
+            BlurEffect = Content.Load<Effect>(ContentFolderEffects + "GaussianBlur");
+            FullScreenQuad = new FullScreenQuad(GraphicsDevice);
+            MainRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
+                GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8, 0,
+                RenderTargetUsage.DiscardContents);
+            MainRenderTarget.Name = "Main Render Target";
             Effect = Content.Load<Effect>(ContentFolderEffects + "ShaderBlingPhong");
 
             Effect.CurrentTechnique = Effect.Techniques["BasicColorDrawing"];
@@ -346,6 +362,7 @@ namespace TGC.MonoGame.TP
 
             DrawShadowMap(gameTime);
             DrawEnvironmentMap(gameTime);
+            
             //Despues del menu restablezco
 
             GraphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.None };
@@ -353,10 +370,20 @@ namespace TGC.MonoGame.TP
 
 
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.SetRenderTarget(null);
-            GraphicsDevice.Clear(Color.Cyan);
+            if (Player.currentEndAnimationTime < Player.endAnimationTime && Player.currentEndAnimationTime > 0)
+            {
+                GraphicsDevice.BlendState = BlendState.Opaque;
+                GraphicsDevice.SetRenderTarget(MainRenderTarget);
+                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+            }
+            else {
+                GraphicsDevice.SetRenderTarget(null);
+            }
+            //GraphicsDevice.Clear(Color.Cyan);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
             Effect.CurrentTechnique = Effect.Techniques["BasicColorDrawing"];
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
@@ -365,16 +392,28 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["shadowMap"]?.SetValue(ShadowMapRenderTarget);
             Effect.Parameters["LightViewProjection"]?.SetValue(ShadowCamera.View * ShadowCamera.Projection);
 
-            var previousBlend = GraphicsDevice.BlendState;
-            GraphicsDevice.BlendState = BlendState.Opaque;
+            
             unaSkyBox.Draw(Camera.View, Camera.Projection, Camera.Position);
-            GraphicsDevice.BlendState = previousBlend;
 
             Player.Draw(Camera.View, Camera.Projection, Camera.Position, ShadowMapRenderTarget, ShadowmapSize, ShadowCamera, "BasicColorDrawing", LightPosition + Player.Position, EnvironmentMapRenderTarget);
             Nivel.Draw(gameTime, Camera.View, Camera.Projection, Player.Position.X);
             Nivel.DrawTranslucent(gameTime, Camera.View, Camera.Projection, Player.Position.X);
+            
+            if (Player.currentEndAnimationTime > 0)
+            {
+                if (Player.currentEndAnimationTime < Player.endAnimationTime)
+                {
+                    DrawSimpleBlur(Player.currentEndAnimationTime);
+                    Player.currentEndAnimationTime += gameTime.ElapsedGameTime.TotalSeconds;
+                }
+                else
+                {
+                    Player.currentEndAnimationTime = 0;
+                    Player.Restart();
+                }
+            }
+
             HUD.Draw(GraphicsDevice, gameTime);
-           
         }
 
         private void DrawShadowMap(GameTime gameTime)
@@ -412,6 +451,39 @@ namespace TGC.MonoGame.TP
 
         }
 
+        private void DrawSimpleBlur(double animationTime)
+        {
+           /* #region Pass 1
+
+            // Use the default blend and depth configuration
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.BlendState = BlendState.Opaque;
+
+            // Set the main render target as our render target
+            GraphicsDevice.SetRenderTarget(MainRenderTarget);
+            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+
+            Model.Draw(Matrix.Identity, Camera.View, Camera.Projection);
+
+            #endregion
+           */
+            #region Pass 2
+
+            GraphicsDevice.DepthStencilState = DepthStencilState.None;
+
+            GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.Clear(Color.Black);
+
+
+            BlurEffect.CurrentTechnique = BlurEffect.Techniques["Blur"];
+            BlurEffect.Parameters["baseTexture"].SetValue(MainRenderTarget);
+            BlurEffect.Parameters["kernel_r"].SetValue(Convert.ToInt32(Player.currentEndAnimationTime*2));
+            BlurEffect.Parameters["screenSize"].SetValue(new Vector2(screenSize.X,screenSize.Y));
+            FullScreenQuad.Draw(BlurEffect);
+
+            #endregion
+        }
+
         public void DrawCenterText(string msg, float escala)
         {
             var W = GraphicsDevice.Viewport.Width;
@@ -440,7 +512,8 @@ namespace TGC.MonoGame.TP
         {
             // Libero los recursos.
             Content.Unload();
-
+            FullScreenQuad.Dispose();
+            MainRenderTarget.Dispose();
             base.UnloadContent();
         }
 

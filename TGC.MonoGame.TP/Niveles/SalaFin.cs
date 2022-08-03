@@ -31,17 +31,20 @@ namespace TGC.MonoGame.TP.Niveles
         {
             base.Draw(gameTime, view, projection);
         }
-
         public override void DrawTranslucent(GameTime gameTime, Matrix view, Matrix projection)
         {
             end.Draw(view, projection, (float)gameTime.TotalGameTime.TotalSeconds);
         }
-
-
         public override void Update(GameTime gameTime)
         {
 
 
+        }
+        public override List<TP.Elements.LogicalObject> GetLogicalObjects()
+        {
+            List<TP.Elements.LogicalObject> logicalObjects = base.GetLogicalObjects();
+            logicalObjects.Add(end);
+            return logicalObjects;
         }
     }
 }

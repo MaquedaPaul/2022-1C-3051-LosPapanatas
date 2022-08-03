@@ -22,6 +22,7 @@ namespace TGC.MonoGame.TP.Elements
         {
             Body.Draw(World, view, projection);
         }
+
         public virtual void Draw(Matrix view, Matrix projection, Effect effect)
         {
             Body.Draw(World, view, projection, effect);
@@ -322,6 +323,21 @@ namespace TGC.MonoGame.TP.Elements
             Collider = new BoundingCylinder(Position, diameter / 2, height);
             Body = new CylinderPrimitive(graphicsDevice, content, Color.White, height, diameter, tessellation);
             this.Position = Position;
+        }
+        public override void WorldUpdate(Vector3 scale, Vector3 newPosition, Quaternion rotation)
+        {
+            base.WorldUpdate(scale, newPosition, rotation);
+            Collider.Center = newPosition;
+            Collider.HalfHeight *= scale.Y;
+            Collider.Radius *= scale.X;
+        }
+
+        public override void WorldUpdate(Vector3 scale, Vector3 newPosition, Matrix rotation)
+        {
+            base.WorldUpdate(scale, newPosition, rotation);
+            Collider.Center = newPosition;
+            Collider.HalfHeight = scale.Y / 2;
+            Collider.Radius = scale.X / 2;
         }
 
         public override bool Intersects(Sphere player)

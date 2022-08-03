@@ -6,7 +6,7 @@ using TGC.MonoGame.TP.Geometries;
 
 namespace TGC.MonoGame.TP.Elements
 {
-    public class StartEnd : Cylinder
+    public class StartEnd : LogicalCyllinder
     {
 
         public Effect effect;
@@ -26,6 +26,15 @@ namespace TGC.MonoGame.TP.Elements
             effect.Parameters["Alpha"]?.SetValue(1f);
             effect.Parameters["Time"]?.SetValue(time);
             Body.Draw(World, view, projection, effect);
+        }
+        public override void logicalAction(Player player)
+        {
+            base.logicalAction(player);
+            Effect(player);
+        }
+
+        private void Effect(Player player) {
+            player.Win();
         }
     }
 }

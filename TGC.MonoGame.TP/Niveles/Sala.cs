@@ -30,11 +30,22 @@ namespace TGC.MonoGame.TP.Niveles
         public Vector3 Posicion;
         public static float Size = 100f;
 
+        public Texture2D floorTex { get; set; }
+        private Texture2D wallTex { get; set; }
+        private Texture2D obsText { get; set; }
+
+        public RenderTarget2D noShadowsRender;
+
+        public RenderTarget2D noEnviromentRender;
+
         public Sala(ContentManager content, GraphicsDevice graphicsDevice, Vector3 posicion)
         {
             Posicion = posicion;
 
-            Effect = content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            floorTex = content.Load<Texture2D>("Textures/madera");
+            wallTex = content.Load<Texture2D>("Textures/stones");
+            obsText = content.Load<Texture2D>("Textures/water");
+            Effect = content.Load<Effect>(ContentFolderEffects + "ShaderBlingPhongTex");
 
             Piso = new Cube(graphicsDevice, content, posicion, Color.Gray);
             Piso.WorldUpdate(new Vector3(Size, 1f, Size), new Vector3(0, 0, 0) + Posicion, Quaternion.Identity);
@@ -56,15 +67,53 @@ namespace TGC.MonoGame.TP.Niveles
 
             checkpoint = new CheckPointWall(graphicsDevice, content, posicion);
             checkpoint.WorldUpdate(new Vector3(1f, Size, Size * 0.1f), new Vector3(Size/2, Size/2, 0) + Posicion, Quaternion.Identity);
+
+            noShadowsRender = new RenderTarget2D(graphicsDevice, 1, 1, false,
+                SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
+
+            noEnviromentRender = new RenderTarget2D(graphicsDevice, 1, 1, false,
+                SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
         }
 
         public virtual void Draw(GameTime gameTime, Matrix view, Matrix projection)
         {
-            Piso.Draw(view, projection);
-            ParedOeste.Draw(view, projection);
-            ParedEste.Draw(view, projection);
-            ParedNorteIzq.Draw(view, projection);
-            ParedNorteDer.Draw(view, projection);
+            /*Vector3 cameraPosition = new Vector3(-10, 10, 0);
+            Vector3 LightPosition = new Vector3(-10, 10, 0);
+            Effect.Parameters["Reflection"]?.SetValue(0.4f);
+            Effect.Parameters["KAmbient"]?.SetValue(0.5f);
+            Effect.Parameters["KDiffuse"]?.SetValue(0.6f);
+            Effect.Parameters["KSpecular"]?.SetValue(0.5f);
+            Effect.CurrentTechnique = Effect.Techniques["BasicColorDrawing"];
+            Effect.Parameters["environmentMap"]?.SetValue(noEnviromentRender);
+            Effect.Parameters["lightPosition"].SetValue(LightPosition);
+            Matrix InverseTransposeWorld = Matrix.Transpose(Matrix.Invert(Matrix.CreateTranslation(Posicion)));
+            Effect.Parameters["InverseTransposeWorld"].SetValue(InverseTransposeWorld);
+            Effect.Parameters["World"].SetValue(Matrix.CreateTranslation(Posicion));
+            Effect.Parameters["View"].SetValue(view);
+            Effect.Parameters["Projection"].SetValue(projection);
+            Effect.Parameters["eyePosition"]?.SetValue(cameraPosition);
+            Effect.Parameters["shadowMapSize"]?.SetValue(Vector2.One * 10);
+            Effect.Parameters["shadowMap"]?.SetValue(noShadowsRender);
+            Effect.Parameters["LightViewProjection"]?.SetValue(Matrix.Identity);
+            Effect.Parameters["ambientColor"]?.SetValue(Color.White.ToVector3());
+            Effect.Parameters["diffuseColor"]?.SetValue(Color.White.ToVector3());
+            Effect.Parameters["specularColor"]?.SetValue(Color.White.ToVector3());*/
+            Effect.Parameters["KAmbient"]?.SetValue(0.5f);
+            Effect.Parameters["KDiffuse"]?.SetValue(0.6f);
+            Effect.Parameters["KSpecular"]?.SetValue(0.5f);
+            Effect.Parameters["ambientColor"]?.SetValue(Color.White.ToVector3());
+            Effect.Parameters["diffuseColor"]?.SetValue(Color.White.ToVector3());
+            Effect.Parameters["specularColor"]?.SetValue(Color.White.ToVector3());
+            Effect.Parameters["environmentMap"]?.SetValue(noEnviromentRender);
+            Effect.Parameters["shadowMap"]?.SetValue(noShadowsRender);
+            Effect.Parameters["ModelTexture"].SetValue(floorTex);
+            Piso.Draw(view, projection,Effect);
+            //Effect.Parameters["ModelTexture"].SetValue(obsText);
+            ParedOeste.Draw(view, projection,Effect);
+            ParedEste.Draw(view, projection, Effect);
+            //Effect.Parameters["ModelTexture"].SetValue(wallTex);
+            ParedNorteIzq.Draw(view, projection, Effect);
+            ParedNorteDer.Draw(view, projection, Effect);
             //Techo.Draw(view, projection);
         }
 

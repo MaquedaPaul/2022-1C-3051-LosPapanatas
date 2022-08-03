@@ -15,7 +15,7 @@ namespace TGC.MonoGame.TP.Niveles
     public class Nivel
     {
         public const string ContentFolderEffects = "Effects/";
-        public const int CantidadSalas = 12;
+        public const int CantidadSalas = 1;
         private Model Model { get; set; }
         private List<Matrix> WorldMatrices { get; set; }
         private Effect Effect { get; set; }

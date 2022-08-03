@@ -174,9 +174,11 @@ namespace TGC.MonoGame.TP.Geometries
         }
         public void Draw(Matrix world, Matrix view, Matrix projection, Effect effect)
         {
-            Effect.Parameters["World"].SetValue(world);
+            effect.Parameters["World"].SetValue(world);
             Matrix InverseTransposeWorld = Matrix.Transpose(Matrix.Invert(world));
-            Effect.Parameters["InverseTransposeWorld"]?.SetValue(InverseTransposeWorld);
+            effect.Parameters["InverseTransposeWorld"]?.SetValue(InverseTransposeWorld);
+            effect.Parameters["View"].SetValue(view);
+            effect.Parameters["Projection"].SetValue(projection);
             Draw(effect);
         }
 

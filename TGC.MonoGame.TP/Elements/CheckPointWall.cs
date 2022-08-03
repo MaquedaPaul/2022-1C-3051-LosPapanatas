@@ -12,7 +12,7 @@ namespace TGC.MonoGame.TP.Elements
         public Effect effect;
 
         public CheckPointWall(GraphicsDevice graphicsDevice, ContentManager content, Vector3 Position) 
-        : base(graphicsDevice, content, Position, Color.Red)
+        : base(graphicsDevice, content, Position)
         {
             effect = content.Load<Effect>("Effects/BasicShader");
             Body.Effect = effect;

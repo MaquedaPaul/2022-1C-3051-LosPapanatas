@@ -1,5 +1,7 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Geometries;
 
 namespace TGC.MonoGame.Samples.Geometries.Textures
 {
@@ -8,21 +10,25 @@ namespace TGC.MonoGame.Samples.Geometries.Textures
     /// </summary>
     public class BoxPrimitive
     {
+
+
+        public RenderTarget2D noEnviromentRender;
         /// <summary>
         ///     Create a box with a center at the given point, with a size and a color in each vertex.
         /// </summary>
         /// <param name="graphicsDevice">Used to initialize and control the presentation of the graphics device.</param>
         /// <param name="size">Size of the box.</param>
         /// <param name="texture">The box texture.</param>
-        public BoxPrimitive(GraphicsDevice graphicsDevice, Vector3 size, Texture2D texture)
+        public BoxPrimitive(GraphicsDevice graphicsDevice, Vector3 size, Texture2D texture, ContentManager content)
         {
-            Effect = new BasicEffect(graphicsDevice);
-            Effect.TextureEnabled = true;
-            Effect.Texture = texture;
-            Effect.EnableDefaultLighting();
-
+            Effect = content.Load<Effect>("Effects/" + "ShaderBlingPhongTex"); ;
+            Effect.Parameters["ModelTexture"]?.SetValue(texture);
+            Tex = texture;
             CreateVertexBuffer(graphicsDevice, size);
             CreateIndexBuffer(graphicsDevice);
+
+            noEnviromentRender = new RenderTarget2D(graphicsDevice, 1, 1, false,
+                SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
         }
 
         /// <summary>
@@ -38,7 +44,9 @@ namespace TGC.MonoGame.Samples.Geometries.Textures
         /// <summary>
         ///     Built-in effect that supports optional texturing, vertex coloring, fog, and lighting.
         /// </summary>
-        private BasicEffect Effect { get; }
+        private Effect Effect { get; }
+
+        private Texture2D Tex { get; }
 
         /// <summary>
         ///     Create a vertex buffer for the figure with the given information.
@@ -227,13 +235,31 @@ namespace TGC.MonoGame.Samples.Geometries.Textures
         /// <param name="projection">The projection matrix, normally from the application.</param>
         public void Draw(Matrix world, Matrix view, Matrix projection)
         {
-            // Set BasicEffect parameters.
-            Effect.World = world;
-            Effect.View = view;
-            Effect.Projection = projection;
+            Vector3 cameraPosition = new Vector3(-10, 10, 0);
+            Vector3 LightPosition = new Vector3(-10, 10, 0);
 
-            // Draw the model, using BasicEffect.
+            Effect.Parameters["environmentMap"]?.SetValue(noEnviromentRender);
+            Effect.Parameters["ModelTexture"]?.SetValue(Tex);
+            Matrix InverseTransposeWorld = Matrix.Transpose(Matrix.Invert(world));
+            Effect.Parameters["InverseTransposeWorld"].SetValue(InverseTransposeWorld);
+            Effect.Parameters["World"].SetValue(world);
+            Effect.Parameters["View"].SetValue(view);
+            Effect.Parameters["Projection"].SetValue(projection);
             Draw(Effect);
+        }
+
+        public void Draw(Matrix world, Matrix view, Matrix projection, Effect effect)
+        {
+            Vector3 cameraPosition = new Vector3(-10, 10, 0);
+            Vector3 LightPosition = new Vector3(-10, 10, 0);
+
+            effect.Parameters["ModelTexture"]?.SetValue(Tex);
+            Matrix InverseTransposeWorld = Matrix.Transpose(Matrix.Invert(world));
+            effect.Parameters["InverseTransposeWorld"].SetValue(InverseTransposeWorld);
+            effect.Parameters["World"].SetValue(world);
+            effect.Parameters["View"].SetValue(view);
+            effect.Parameters["Projection"].SetValue(projection);
+            Draw(effect);
         }
 
         /// <summary>
@@ -244,6 +270,7 @@ namespace TGC.MonoGame.Samples.Geometries.Textures
         /// <param name="effect">Used to set and query effects, and to choose techniques.</param>
         public void Draw(Effect effect)
         {
+           
             var graphicsDevice = effect.GraphicsDevice;
 
             // Set our vertex declaration, vertex buffer, and index buffer.

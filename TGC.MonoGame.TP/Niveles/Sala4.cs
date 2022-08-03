@@ -22,25 +22,25 @@ namespace TGC.MonoGame.TP.Niveles
 
         public Sala4(ContentManager content, GraphicsDevice graphicsDevice, Vector3 posicion) : base(content, graphicsDevice, posicion)
         {
-            Piso = new Cube(graphicsDevice, content, posicion);
+            Piso = new Cube(graphicsDevice, content, posicion,content.Load<Texture2D>("Textures/madera"));
             Piso.WorldUpdate(platformScale, new Vector3(-45f, 0, 0) + posicion, Quaternion.Identity);
-            PisoSalida = new Cube(graphicsDevice, content, posicion);
+            PisoSalida = new Cube(graphicsDevice, content, posicion, content.Load<Texture2D>("Textures/madera"));
 
             Platforms = new List<Cube>();
-            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(-22.5f, 0, 0)));
-            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(0, 0, 0)));
-            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(0, 0, 22.5f)));
+            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(-22.5f, 0, 0), content.Load<Texture2D>("Textures/madera")));
+            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(0, 0, 0), content.Load<Texture2D>("Textures/madera")));
+            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(0, 0, 22.5f), content.Load<Texture2D>("Textures/madera")));
 
             // plataforma con powerUP
-            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(22.5f, 5, 22.5f)));
+            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(22.5f, 5, 22.5f), content.Load<Texture2D>("Textures/madera")));
             //TODO: FIX rotación
             powerUp = new GladePU(graphicsDevice, content, new Vector3(22.5f, 9, 22.5f) + posicion);
 
             // plataforma a la que solo se llega con el powerUP
-            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(35, 44, -35)));
+            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(35, 44, -35), content.Load<Texture2D>("Textures/madera")));
 
-            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(0, 0, -22.5f)));
-            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(22.5f, 0, 0)));
+            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(0, 0, -22.5f), content.Load<Texture2D>("Textures/madera")));
+            Platforms.Add(new Cube(graphicsDevice, content, new Vector3(22.5f, 0, 0), content.Load<Texture2D>("Textures/madera")));
 
             Spheres = new List<MovingKillerSphere>();
             Spheres.Add(new MovingKillerSphere(new List<Vector3> { new Vector3(-33.75f, 5, -20), new Vector3(-33.75f, 5, 20) }, graphicsDevice, content, -2, 45f));
@@ -72,11 +72,11 @@ namespace TGC.MonoGame.TP.Niveles
         public override void Draw(GameTime gameTime, Matrix view, Matrix projection)
         {
             base.Draw(gameTime, view, projection);
-            PisoSalida.Body.Draw(PisoSalida.World, view, projection);
+            PisoSalida.Draw( view, projection);
 
             foreach(Cube cube in Platforms)
             {
-                cube.Body.Draw(cube.World, view, projection);
+                cube.Draw(view, projection);
             }
             
             foreach(MovingKillerSphere sphere in Spheres)

@@ -95,8 +95,8 @@ namespace TGC.MonoGame.TP
 
         public RenderTarget2D noEnviromentRender;
 
-        public int endAnimationTime = 4;
-        public double currentEndAnimationTime = 5;
+        public int endAnimationTime = 3;
+        public double currentEndAnimationTime = 0;
 
         public Player(GraphicsDevice graphics, ContentManager content, Effect Effect, Color color)
         {

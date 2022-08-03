@@ -41,8 +41,8 @@ namespace TGC.MonoGame.TP.Niveles
             for ( i = 1; i<= CantidadSalas; i++) {
                 switch (rnd.Next(1, 5)) { 
                     case 1:
-                    Salas.Add(new Sala1(content, graphicsDevice, new Vector3(i * Sala.Size, 0, 0)));
-                    break;
+                    //Salas.Add(new Sala1(content, graphicsDevice, new Vector3(i * Sala.Size, 0, 0)));
+                    //break;
                 case 2:
                     Salas.Add(new Sala2(content, graphicsDevice, new Vector3(i * Sala.Size, 0, 0)));
                     break;

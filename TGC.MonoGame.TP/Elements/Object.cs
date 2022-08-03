@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using TGC.MonoGame.Samples.Collisions;
+using TGC.MonoGame.Samples.Geometries.Textures;
 using TGC.MonoGame.TP.Geometries;
 
 namespace TGC.MonoGame.TP.Elements
@@ -17,6 +18,7 @@ namespace TGC.MonoGame.TP.Elements
         public static Vector3 InitialPosition{get;set;}
 
         public GeometricPrimitive Body { get; set; }
+        
 
         public virtual void Draw(Matrix view, Matrix projection)
         {
@@ -57,19 +59,20 @@ namespace TGC.MonoGame.TP.Elements
 
     public class Cube : Object
     {
+        public BoxPrimitive BodyExtra { get; set; }
         public OrientedBoundingBox Collider { get; set; }
         public OrientedBoundingBox InitialCollider { get; set; }
-        public Cube(GraphicsDevice graphicsDevice, ContentManager content, Vector3 Position, Color color)
+        public Cube(GraphicsDevice graphicsDevice, ContentManager content, Vector3 Position, Color color, Texture2D tex)
         {
             Collider = new OrientedBoundingBox(Position, new Vector3(1, 1, 1));
-            Body = new CubePrimitive(graphicsDevice, content, 1, color);
+            BodyExtra = new BoxPrimitive(graphicsDevice, Vector3.One, tex, content);
             this.Position = Position;
         }
 
-        public Cube(GraphicsDevice graphicsDevice, ContentManager content, Vector3 Position)
+        public Cube(GraphicsDevice graphicsDevice, ContentManager content, Vector3 Position, Texture2D tex)
         {
             Collider = new OrientedBoundingBox(Position, new Vector3(1, 1, 1));
-            Body = new CubePrimitive(graphicsDevice, content, 1, Color.White);
+            BodyExtra = new BoxPrimitive(graphicsDevice, Vector3.One, tex,content );
             this.Position = Position;
         }
 
@@ -111,6 +114,19 @@ namespace TGC.MonoGame.TP.Elements
                 v = new Vector3(-0.25f, 0.96f, 0f); //Workaround rampa
             v.Normalize();
             return v;
+        }
+
+        public override void Draw(Matrix view, Matrix projection, Effect effect)
+        {
+            BodyExtra.Draw(World, view, projection, effect);
+        }
+        public override void Draw(Effect effect)
+        {
+            BodyExtra.Draw(effect);
+        }
+        public override void Draw(Matrix view, Matrix projection)
+        {
+            BodyExtra.Draw(World, view, projection);
         }
     }
 
@@ -354,19 +370,13 @@ namespace TGC.MonoGame.TP.Elements
 
     public class LogicalCube : LogicalObject
     {
+        public BoxPrimitive BodyExtra { get; set; }
         public OrientedBoundingBox Collider { get; set; }
         public OrientedBoundingBox InitialCollider { get; set; }
-        public LogicalCube(GraphicsDevice graphicsDevice, ContentManager content, Vector3 Position, Color color)
-        {
-            Collider = new OrientedBoundingBox(Position, new Vector3(1, 1, 1));
-            Body = new CubePrimitive(graphicsDevice, content, 1, color);
-            this.Position = Position;
-        }
-
         public LogicalCube(GraphicsDevice graphicsDevice, ContentManager content, Vector3 Position)
         {
             Collider = new OrientedBoundingBox(Position, new Vector3(1, 1, 1));
-            Body = new CubePrimitive(graphicsDevice, content, 1, Color.White);
+            Body = new CubePrimitive(graphicsDevice, content, 1, Color.Red);
             this.Position = Position;
         }
 

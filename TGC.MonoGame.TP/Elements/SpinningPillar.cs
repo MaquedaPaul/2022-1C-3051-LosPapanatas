@@ -44,6 +44,15 @@ namespace TGC.MonoGame.TP.Elements
             }
         }
 
+        public void Draw(Matrix view, Matrix projection, Effect effect)
+        {
+            Columna.Draw(view, projection, effect);
+            foreach (Escalon e in Escalones)
+            {
+                e.Draw(view, projection, effect);
+            }
+        }
+
         public List<TP.Elements.Object> getPhysicalObjects(){
             List<TP.Elements.Object> l = new List<TP.Elements.Object>();
             l.Add(Columna);
@@ -70,7 +79,7 @@ namespace TGC.MonoGame.TP.Elements
 
         internal Escalon(GraphicsDevice graphicsDevice, ContentManager content, Vector3 columnCenterAndHeight, float rotationAroundColumn){
             ColumnCenter = columnCenterAndHeight;
-            Cuerpo = new Cube(graphicsDevice, content, new Vector3(0,0,0));
+            Cuerpo = new Cube(graphicsDevice, content, new Vector3(0,0,0), content.Load<Texture2D>("Textures/madera"));
             degreesAroundColumn = rotationAroundColumn;
             EscalonScale = Matrix.CreateScale(EscalonScaleVector);
             ColumnCenterTranslation = Matrix.CreateTranslation(columnCenterAndHeight);
@@ -95,6 +104,10 @@ namespace TGC.MonoGame.TP.Elements
             Cuerpo.Draw( view, projection);
         }
 
+        internal void Draw(Matrix view, Matrix projection, Effect effect)
+        {
+            Cuerpo.Draw(view, projection,effect);
+        }
         internal bool Intersects(Sphere s)
         {
             return Cuerpo.Intersects(s);

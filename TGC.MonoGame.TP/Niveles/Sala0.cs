@@ -26,14 +26,14 @@ namespace TGC.MonoGame.TP.Niveles
         {
      
             Coin = new Coin(graphicsDevice,content,new Vector3(25, 20, 0) + posicion);
-            FirstPlatform = new Cube(graphicsDevice, content, posicion);
+            FirstPlatform = new Cube(graphicsDevice, content, posicion, content.Load<Texture2D>("Textures/madera"));
             FirstPlatform.WorldUpdate(new Vector3(10f, 1f, 10f), new Vector3(25, 10, 0) + posicion, Quaternion.Identity);
 
             // TODO: remover este power up
             //powerUp = new SpeedPU(graphicsDevice, content, new Vector3(0, 10, 0));
             //powerUp = new GladePU(graphicsDevice, content, new Vector3(0, 10, 0));
 
-            ParedSur = new Cube(graphicsDevice, content, posicion);
+            ParedSur = new Cube(graphicsDevice, content, posicion, content.Load<Texture2D>("Textures/madera"));
             ParedSur.WorldUpdate(new Vector3(1f, Size, Size), new Vector3(-Size / 2, Size / 2, 0) + posicion,Quaternion.Identity);
 
             start = new StartEnd(graphicsDevice, content, Color.Yellow);

@@ -49,6 +49,8 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
         private Effect Effect { get; set; }
+
+        private Effect EffectTex { get; set; }
         private Effect PlayerEffect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
@@ -97,14 +99,14 @@ namespace TGC.MonoGame.TP
 
         private RenderTarget2D ShadowMapRenderTarget;
 
-        private const int ShadowmapSize = 1024 * 4;
+        private const int ShadowmapSize = 1024 * 5;
 
         private TargetCamera ShadowCamera;
 
         //0.1
         //300
         //0
-        private Vector3 LightPosition = new Vector3(-70f, 500f, 0f);
+        private Vector3 LightPosition = new Vector3(-70f, 150f, 0f);
         //3000
         private readonly float ShadowCameraFarPlaneDistance = 3000f;
         //5f
@@ -202,6 +204,20 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["KDiffuse"].SetValue(0.6f);
             Effect.Parameters["KSpecular"].SetValue(0.3f);
 
+            EffectTex = Content.Load<Effect>(ContentFolderEffects + "ShaderBlingPhongTex");
+
+            EffectTex.CurrentTechnique = Effect.Techniques["BasicColorDrawing"];
+
+            EffectTex.Parameters["lightPosition"].SetValue(LightPosition);
+
+            EffectTex.Parameters["ambientColor"].SetValue(Color.White.ToVector3());
+            EffectTex.Parameters["diffuseColor"].SetValue(Color.White.ToVector3());
+            EffectTex.Parameters["specularColor"].SetValue(Color.White.ToVector3());
+
+            EffectTex.Parameters["KAmbient"].SetValue(0.7f);
+            EffectTex.Parameters["KDiffuse"].SetValue(0.6f);
+            EffectTex.Parameters["KSpecular"].SetValue(0.3f);
+
 
             SongName = "menu_music";
             Song = Content.Load<Song>(ContentFolderMusic + SongName);
@@ -268,7 +284,7 @@ namespace TGC.MonoGame.TP
             ShadowCamera.TargetPosition = Player.Position;
             ShadowCamera.BuildView();
             Effect.Parameters["lightPosition"].SetValue(LightPosition + Player.Position * 0.0002f);
-
+            EffectTex.Parameters["lightPosition"].SetValue(LightPosition + Player.Position * 0.0002f);
             CubeMapCamera.Position = Player.Position;
 
             if (CameraChangeCooldown > 0)
@@ -372,7 +388,6 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logia de renderizado del juego.
             if (Player.currentEndAnimationTime < Player.endAnimationTime && Player.currentEndAnimationTime > 0)
             {
-                GraphicsDevice.BlendState = BlendState.Opaque;
                 GraphicsDevice.SetRenderTarget(MainRenderTarget);
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
             }
@@ -382,8 +397,6 @@ namespace TGC.MonoGame.TP
             //GraphicsDevice.Clear(Color.Cyan);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            GraphicsDevice.BlendState = BlendState.Opaque;
-            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
             Effect.CurrentTechnique = Effect.Techniques["BasicColorDrawing"];
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
@@ -392,8 +405,20 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["shadowMap"]?.SetValue(ShadowMapRenderTarget);
             Effect.Parameters["LightViewProjection"]?.SetValue(ShadowCamera.View * ShadowCamera.Projection);
 
-            
+            EffectTex.CurrentTechnique = EffectTex.Techniques["BasicColorDrawing"];
+            EffectTex.Parameters["View"].SetValue(Camera.View);
+            EffectTex.Parameters["Projection"].SetValue(Camera.Projection);
+            EffectTex.Parameters["eyePosition"].SetValue(Camera.Position);
+            EffectTex.Parameters["shadowMapSize"]?.SetValue(Vector2.One * ShadowmapSize);
+            EffectTex.Parameters["shadowMap"]?.SetValue(ShadowMapRenderTarget);
+            EffectTex.Parameters["LightViewProjection"]?.SetValue(ShadowCamera.View * ShadowCamera.Projection);
+
+
+
+            var previousBlend = GraphicsDevice.BlendState;
+            GraphicsDevice.BlendState = BlendState.Opaque;
             unaSkyBox.Draw(Camera.View, Camera.Projection, Camera.Position);
+            GraphicsDevice.BlendState = previousBlend;
 
             Player.Draw(Camera.View, Camera.Projection, Camera.Position, ShadowMapRenderTarget, ShadowmapSize, ShadowCamera, "BasicColorDrawing", LightPosition + Player.Position, EnvironmentMapRenderTarget);
             Nivel.Draw(gameTime, Camera.View, Camera.Projection, Player.Position.X);
@@ -420,15 +445,18 @@ namespace TGC.MonoGame.TP
         {
             Effect.Parameters["View"].SetValue(ShadowCamera.View);
             Effect.Parameters["Projection"].SetValue(ShadowCamera.Projection);
+            EffectTex.Parameters["View"].SetValue(ShadowCamera.View);
+            EffectTex.Parameters["Projection"].SetValue(ShadowCamera.Projection);
 
             //Seteamos render target en el shadowmap
             GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
 
             Effect.CurrentTechnique = Effect.Techniques["DepthPass"];
+            EffectTex.CurrentTechnique = EffectTex.Techniques["DepthPass"];
 
             //Dibujamos en el shadowmap
-            
+
             Nivel.Draw(gameTime, ShadowCamera.View, ShadowCamera.Projection, Player.Position.X);
             Player.Draw(ShadowCamera.View, ShadowCamera.Projection, ShadowCamera.Position, ShadowMapRenderTarget, ShadowmapSize, ShadowCamera, "DepthPass", LightPosition + Player.Position, EnvironmentMapRenderTarget);
         }
@@ -445,7 +473,7 @@ namespace TGC.MonoGame.TP
                 SetCubemapCameraForOrientation(face);
                 CubeMapCamera.BuildView();
 
-                Nivel.Draw(gameTime,CubeMapCamera.View, CubeMapCamera.Projection, Player.Position.X);
+                Nivel.Draw(gameTime, CubeMapCamera.View, CubeMapCamera.Projection, Player.Position.X);
                 Nivel.DrawTranslucent(gameTime, CubeMapCamera.View, CubeMapCamera.Projection, Player.Position.X);
             }
 
@@ -453,31 +481,16 @@ namespace TGC.MonoGame.TP
 
         private void DrawSimpleBlur(double animationTime)
         {
-           /* #region Pass 1
-
-            // Use the default blend and depth configuration
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.BlendState = BlendState.Opaque;
-
-            // Set the main render target as our render target
-            GraphicsDevice.SetRenderTarget(MainRenderTarget);
-            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
-
-            Model.Draw(Matrix.Identity, Camera.View, Camera.Projection);
-
-            #endregion
-           */
             #region Pass 2
 
             GraphicsDevice.DepthStencilState = DepthStencilState.None;
 
             GraphicsDevice.SetRenderTarget(null);
-            GraphicsDevice.Clear(Color.Black);
 
 
             BlurEffect.CurrentTechnique = BlurEffect.Techniques["Blur"];
             BlurEffect.Parameters["baseTexture"].SetValue(MainRenderTarget);
-            BlurEffect.Parameters["kernel_r"].SetValue(Convert.ToInt32(Player.currentEndAnimationTime*2));
+            BlurEffect.Parameters["kernel_r"].SetValue(Convert.ToInt32(Player.currentEndAnimationTime*3));
             BlurEffect.Parameters["screenSize"].SetValue(new Vector2(screenSize.X,screenSize.Y));
             FullScreenQuad.Draw(BlurEffect);
 

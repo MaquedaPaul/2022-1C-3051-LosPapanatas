@@ -14,9 +14,8 @@ namespace TGC.MonoGame.TP.Niveles
 
         public Sala1(ContentManager content, GraphicsDevice graphicsDevice, Vector3 posicion) : base(content, graphicsDevice, posicion)
         {
-            Piso = new Cube(graphicsDevice, content, posicion);
+            Piso = new Cube(graphicsDevice, content, posicion, floorTex);
             Piso.WorldUpdate(new Vector3(10f, 1f, 10f), new Vector3(-45f, 0, 0) + posicion, Quaternion.Identity);
-            //Piso.World = Matrix.CreateScale() * Matrix.CreateTranslation( );
 
             Pilar = new SpinningPillar(graphicsDevice,content, posicion);
 

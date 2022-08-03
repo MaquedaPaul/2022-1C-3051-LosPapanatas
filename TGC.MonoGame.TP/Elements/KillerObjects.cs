@@ -10,7 +10,7 @@ namespace TGC.MonoGame.TP.Elements
 {
     public class KillerCube : LogicalCube
     {
-        public KillerCube(GraphicsDevice graphicsDevice, ContentManager content, Vector3 posicion) : base(graphicsDevice, content, posicion, Color.Red)
+        public KillerCube(GraphicsDevice graphicsDevice, ContentManager content, Vector3 posicion) : base(graphicsDevice, content, posicion)
         {
         }
 

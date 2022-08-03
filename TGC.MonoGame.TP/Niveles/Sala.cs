@@ -44,29 +44,27 @@ namespace TGC.MonoGame.TP.Niveles
 
             floorTex = content.Load<Texture2D>("Textures/madera");
             wallTex = content.Load<Texture2D>("Textures/stones");
-            obsText = content.Load<Texture2D>("Textures/water");
-            Effect = content.Load<Effect>(ContentFolderEffects + "ShaderBlingPhongTex");
 
-            Piso = new Cube(graphicsDevice, content, posicion, Color.Gray);
+            Piso = new Cube(graphicsDevice, content, posicion, floorTex);
             Piso.WorldUpdate(new Vector3(Size, 1f, Size), new Vector3(0, 0, 0) + Posicion, Quaternion.Identity);
-            
-            ParedOeste = new Cube(graphicsDevice, content, posicion, Color.Orange);
+
+            ParedOeste = new Cube(graphicsDevice, content, posicion, wallTex);
             ParedOeste.WorldUpdate(new Vector3(Size, Size, 1f), new Vector3(0, Size / 2, Size / 2) + Posicion, Quaternion.Identity);
 
-            ParedEste = new Cube(graphicsDevice, content, posicion, Color.Orange);
+            ParedEste = new Cube(graphicsDevice, content, posicion, wallTex);
             ParedEste.WorldUpdate(new Vector3(Size, Size, 1f), new Vector3(0, Size / 2, -Size / 2) + Posicion, Quaternion.Identity);
-            
-            ParedNorteIzq = new Cube(graphicsDevice, content, posicion, Color.Orange);
+
+            ParedNorteIzq = new Cube(graphicsDevice, content, posicion, wallTex);
             ParedNorteIzq.WorldUpdate(new Vector3(1f, Size, Size * 0.45f), new Vector3(50, Size / 2, Size * 0.275f) + Posicion, Quaternion.Identity);
 
-            ParedNorteDer = new Cube(graphicsDevice, content, posicion, Color.Orange);
+            ParedNorteDer = new Cube(graphicsDevice, content, posicion, wallTex);
             ParedNorteDer.WorldUpdate(new Vector3(1f, Size, Size * 0.45f), new Vector3(50, Size / 2, -Size * 0.275f) + Posicion, Quaternion.Identity);
 
-            Techo = new Cube(graphicsDevice, content, posicion);
+            Techo = new Cube(graphicsDevice, content, posicion, wallTex);
             Techo.WorldUpdate(new Vector3(Size, 1f, Size), new Vector3(0, Size, 0) + Posicion, Quaternion.Identity);
 
             checkpoint = new CheckPointWall(graphicsDevice, content, posicion);
-            checkpoint.WorldUpdate(new Vector3(1f, Size, Size * 0.1f), new Vector3(Size/2, Size/2, 0) + Posicion, Quaternion.Identity);
+            checkpoint.WorldUpdate(new Vector3(1f, Size, Size * 0.1f), new Vector3(Size / 2, Size / 2, 0) + Posicion, Quaternion.Identity);
 
             noShadowsRender = new RenderTarget2D(graphicsDevice, 1, 1, false,
                 SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
@@ -77,43 +75,12 @@ namespace TGC.MonoGame.TP.Niveles
 
         public virtual void Draw(GameTime gameTime, Matrix view, Matrix projection)
         {
-            /*Vector3 cameraPosition = new Vector3(-10, 10, 0);
-            Vector3 LightPosition = new Vector3(-10, 10, 0);
-            Effect.Parameters["Reflection"]?.SetValue(0.4f);
-            Effect.Parameters["KAmbient"]?.SetValue(0.5f);
-            Effect.Parameters["KDiffuse"]?.SetValue(0.6f);
-            Effect.Parameters["KSpecular"]?.SetValue(0.5f);
-            Effect.CurrentTechnique = Effect.Techniques["BasicColorDrawing"];
-            Effect.Parameters["environmentMap"]?.SetValue(noEnviromentRender);
-            Effect.Parameters["lightPosition"].SetValue(LightPosition);
-            Matrix InverseTransposeWorld = Matrix.Transpose(Matrix.Invert(Matrix.CreateTranslation(Posicion)));
-            Effect.Parameters["InverseTransposeWorld"].SetValue(InverseTransposeWorld);
-            Effect.Parameters["World"].SetValue(Matrix.CreateTranslation(Posicion));
-            Effect.Parameters["View"].SetValue(view);
-            Effect.Parameters["Projection"].SetValue(projection);
-            Effect.Parameters["eyePosition"]?.SetValue(cameraPosition);
-            Effect.Parameters["shadowMapSize"]?.SetValue(Vector2.One * 10);
-            Effect.Parameters["shadowMap"]?.SetValue(noShadowsRender);
-            Effect.Parameters["LightViewProjection"]?.SetValue(Matrix.Identity);
-            Effect.Parameters["ambientColor"]?.SetValue(Color.White.ToVector3());
-            Effect.Parameters["diffuseColor"]?.SetValue(Color.White.ToVector3());
-            Effect.Parameters["specularColor"]?.SetValue(Color.White.ToVector3());*/
-            Effect.Parameters["KAmbient"]?.SetValue(0.5f);
-            Effect.Parameters["KDiffuse"]?.SetValue(0.6f);
-            Effect.Parameters["KSpecular"]?.SetValue(0.5f);
-            Effect.Parameters["ambientColor"]?.SetValue(Color.White.ToVector3());
-            Effect.Parameters["diffuseColor"]?.SetValue(Color.White.ToVector3());
-            Effect.Parameters["specularColor"]?.SetValue(Color.White.ToVector3());
-            Effect.Parameters["environmentMap"]?.SetValue(noEnviromentRender);
-            Effect.Parameters["shadowMap"]?.SetValue(noShadowsRender);
-            Effect.Parameters["ModelTexture"].SetValue(floorTex);
-            Piso.Draw(view, projection,Effect);
-            //Effect.Parameters["ModelTexture"].SetValue(obsText);
-            ParedOeste.Draw(view, projection,Effect);
-            ParedEste.Draw(view, projection, Effect);
-            //Effect.Parameters["ModelTexture"].SetValue(wallTex);
-            ParedNorteIzq.Draw(view, projection, Effect);
-            ParedNorteDer.Draw(view, projection, Effect);
+
+            Piso.Draw(view, projection);
+            ParedOeste.Draw(view, projection);
+            ParedEste.Draw(view, projection);
+            ParedNorteIzq.Draw(view, projection);
+            ParedNorteDer.Draw(view, projection);
             //Techo.Draw(view, projection);
         }
 

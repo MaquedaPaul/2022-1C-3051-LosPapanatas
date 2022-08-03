@@ -23,15 +23,15 @@ namespace TGC.MonoGame.TP.Niveles
 
         public Sala2(ContentManager content, GraphicsDevice graphicsDevice, Vector3 posicion) : base(content, graphicsDevice, posicion)
         {
-            Piso = new Cube(graphicsDevice, content, posicion);
+            Piso = new Cube(graphicsDevice, content, posicion, floorTex);
             Piso.WorldUpdate(platformScale, new Vector3(-45f, 0, 0) + posicion, Quaternion.Identity);
-            PisoSalida = new Cube(graphicsDevice, content, posicion);
+            PisoSalida = new Cube(graphicsDevice, content, posicion, floorTex);
             PisoSalida.WorldUpdate(platformScale, new Vector3(45f, 0, 0) + posicion, Quaternion.Identity);
 
             MovingPlatforms = new List<MovingCube>();
-            MovingPlatforms.Add(new MovingCube(new List<Vector3> { new Vector3(0, 0, -40), new Vector3(0, 0, 40) }, graphicsDevice, content ,Color.White));
-            MovingPlatforms.Add(new MovingCube(new List<Vector3> { new Vector3(22.5f, 0, 40), new Vector3(22.5f, 0, -40) }, graphicsDevice, content,Color.White));
-            MovingPlatforms.Add(new MovingCube(new List<Vector3> { new Vector3(-22.5f, 0, 40), new Vector3(-22.5f, 0, -40) }, graphicsDevice, content,Color.White));
+            MovingPlatforms.Add(new MovingCube(new List<Vector3> { new Vector3(0, 0, -40), new Vector3(0, 0, 40) }, graphicsDevice, content , floorTex));
+            MovingPlatforms.Add(new MovingCube(new List<Vector3> { new Vector3(22.5f, 0, 40), new Vector3(22.5f, 0, -40) }, graphicsDevice, content, floorTex));
+            MovingPlatforms.Add(new MovingCube(new List<Vector3> { new Vector3(-22.5f, 0, 40), new Vector3(-22.5f, 0, -40) }, graphicsDevice, content, floorTex));
             //MovingCubes.Add(new MovingCube(new List<Vector3> { new Vector3(40, 20, -20), new Vector3(40, 20, 20), new Vector3(40, 40, 20), new Vector3(40, 40, -20) }, graphicsDevice, Color.Red, 2, 25f));
             
             foreach (MovingCube cube in MovingPlatforms)
